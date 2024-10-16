@@ -1,10 +1,7 @@
-import { Context } from 'koishi'
+import { Context, Schema } from 'koishi'
 import { MessageHandler } from './events/message-handler'
 import { SummaryController } from './controllers/summary-controller'
 import { ApiAdapter } from './utils/api-adapter'
-import { Config } from './utils/configs'
-
-export const inject = ['database']
 
 export const name = 'chat-summary'
 
@@ -13,10 +10,10 @@ class ChatSummary {
   private apiAdapter: ApiAdapter
   private summaryController: SummaryController
 
-  constructor(ctx: Context, public config: Config) {
+  constructor(ctx: Context, public config: ChatSummary.Config) {
     this.extendTable(ctx);
     this.messageHandler = new MessageHandler(ctx);
-    this.apiAdapter = new ApiAdapter(ctx, "http://localhost:11434", "llama3.1:8b");
+    this.apiAdapter = new ApiAdapter(ctx, config.baseUrl, config.model, config.apiKey);
     this.summaryController = new SummaryController(ctx, this.apiAdapter);
     
     // logic for storing and retrieving chat messages
@@ -42,6 +39,21 @@ class ChatSummary {
       autoInc: true 
     })
   }
+}
+
+namespace ChatSummary {
+  export const inject = ['database']
+  
+  export interface Config {
+    baseUrl: string;
+    model: string;
+    apiKey: string[];
+  }
+  export const Config: Schema<Config> = Schema.object({
+    baseUrl: Schema.string().required(),
+    model: Schema.string().required(),
+    apiKey: Schema.array(Schema.string())
+  })
 }
 
 export default ChatSummary
