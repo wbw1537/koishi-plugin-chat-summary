@@ -1,3 +1,5 @@
+import { Context } from "koishi"
+
 declare module 'koishi' {
     interface Tables {
         chat_messages: ChatMessages
