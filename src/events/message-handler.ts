@@ -2,18 +2,16 @@ import { Context } from "koishi";
 import { summarizeChatCommand } from "../utils/utils";
 
 export class MessageHandler {
-  private ctx: Context;
 
-  constructor(ctx: Context) {
-    this.ctx = ctx;
+  constructor(private ctx: Context, private enabledGridIds: string[]) {
   }
 
-  public handleMessageEvent(ctx: Context) {
-    ctx.on("message", async (session) => {
-      if (!this.messageFilter(session)) return;
+  public handleMessageEvent() {
+    this.ctx.middleware(async (session, next) => {
+      if (!this.messageFilter(session, this.enabledGridIds)) return next();
 
       // store the message in the database
-      await ctx.database.create("chat_messages", {
+      await this.ctx.database.create("chat_messages", {
         groupId: session.guildId,
         userId: session.userId,
         userName: session.username,
@@ -25,13 +23,15 @@ export class MessageHandler {
     })
   }
 
-  private messageFilter(session: any): boolean {
+  private messageFilter(session: any, enabledGridIds: string[]): boolean {
     // not group message
     if (session.guildId === undefined) return false;
     // self message
     if (session.userId === this.ctx.bots[0].selfId) return false;
     // message is a command
     if (session.content === summarizeChatCommand) return false;
+    // not enabled group
+    if (!enabledGridIds.includes(session.guildId)) return false;
     return true
   }
 }

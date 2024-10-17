@@ -12,12 +12,12 @@ class ChatSummary {
 
   constructor(ctx: Context, public config: ChatSummary.Config) {
     this.extendTable(ctx);
-    this.messageHandler = new MessageHandler(ctx);
+    this.messageHandler = new MessageHandler(ctx, config.enabledGridIds);
     this.apiAdapter = new ApiAdapter(ctx, config.baseUrl, config.model, config.apiKey);
-    this.summaryController = new SummaryController(ctx, this.apiAdapter);
+    this.summaryController = new SummaryController(ctx, this.apiAdapter, config.enabledGridIds);
     
     // logic for storing and retrieving chat messages
-    this.messageHandler.handleMessageEvent(ctx)
+    this.messageHandler.handleMessageEvent()
 
     this.summaryController.summarizeChat()
   }
@@ -45,14 +45,16 @@ namespace ChatSummary {
   export const inject = ['database']
   
   export interface Config {
+    enabledGridIds: string[];
     baseUrl: string;
     model: string;
     apiKey: string[];
   }
   export const Config: Schema<Config> = Schema.object({
+    enabledGridIds: Schema.array(String).default(['161057405']).description('需要开启chat-summary的群组ID'),
     baseUrl: Schema.string().required(),
     model: Schema.string().required(),
-    apiKey: Schema.array(Schema.string())
+    apiKey: Schema.array(String),
   })
 }
 
