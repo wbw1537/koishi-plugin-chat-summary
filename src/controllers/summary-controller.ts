@@ -21,9 +21,9 @@ export class SummaryController {
   }
 
   public async summarizeChat() {
-    this.ctx.command("chat-summary")
-      .option('timeDuration', '-t <timeDuration:number>', { fallback: 12})
-      .option('user', '-u <user:user>', { fallback: undefined })
+    this.ctx.command("chat-summary", "总结你的群聊")
+      .option('timeDuration', '-t <timeDuration:number> 指定时间范围，单位为小时', { fallback: 12 })
+      .option('user', '-u <user:user> 指定用户，请直接@', { fallback: undefined })
       .action(async ({ session, options }) => {
         console.log("t:", options.timeDuration, "u:", options.user);
         if (!this.enabledGridIds.includes(session.guildId)) {
