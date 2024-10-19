@@ -51,7 +51,7 @@ namespace ChatSummary {
     apiKey: string[];
   }
   export const Config: Schema<Config> = Schema.object({
-    enabledGridIds: Schema.array(String).default(['161057405']).description('需要开启chat-summary的群组ID'),
+    enabledGridIds: Schema.array(String).description('需要开启chat-summary的群组ID'),
     baseUrl: Schema.string().required(),
     model: Schema.string().required(),
     apiKey: Schema.array(String),
